@@ -3,10 +3,15 @@ body,a,li,input,button,textarea{font-family:"Microsoft YaHei" !important}
 a{text-decoration:none}
 li{list-style:none}
 img{border:0 none}
+
 textarea{line-height:20px}
 input,button,textarea{font-size:14px;outline:0 none;margin:0;padding:0}
 input::-ms-clear,input::-ms-clear{display:none}
-h1,i,em,h2,h3,h4,h5,h6{font-weight:normal}
+h1,i,em,h2,h3,h4,h5,h6{
+	font-weight: normal;
+	text-align: center;
+	font-size: 36px;
+}
 table{border-collapse:collapse}
 body{font-size:14px;background-color:#fff}
 
