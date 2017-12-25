@@ -32,7 +32,7 @@ class JobSpider:
     def job_spider(self):
         """ 爬虫入口
         """
-        url = "http://search.51job.com/list/080900%252C080500%252C080600%252C080800%252C081600,000000,0000,00,9,99,%25E8%25BD%25AF%25E4%25BB%25B6,2,2.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=1&dibiaoid=0&address=&line=&specialarea=00&from=&welfare="
+        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=080700%2C080900%2C080500%2C080600%2C080800&keyword=%E8%AE%A1%E7%AE%97%E6%9C%BA&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
         urls = [url.format(p) for p in range(1, 14)]
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')
@@ -59,7 +59,7 @@ class JobSpider:
         for c in self.company:
             try:
                 r = requests.get(c.get('href'), headers=self.headers).content.decode('gbk')
-            except requests.RequestException as e:
+            except (requests.RequestException,UnicodeDecodeError) as e:
                 continue
             if (BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox")!=None):
                 bs = BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox").text
@@ -85,7 +85,7 @@ class JobSpider:
         # 使用 jieba 分词
         file_path = os.path.join("data", "user_dict.txt")
         jieba.load_userdict(file_path)
-        r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+。：；、【】等的和1234567890及中并，有对能与各可 \n（）'
+        r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+。：；、【】等的和1234567890及中并，有对能与各可 \n（）'+"工作"
         seg_list = jieba.cut(post, cut_all=False)
         counter = dict()
         for seg in seg_list:
@@ -247,7 +247,7 @@ class JobSpider:
             #pprint(counter)
         file_path = os.path.join("font", "msyh.ttf")
         wc = WordCloud(font_path=file_path,
-                       max_words=500,
+                       max_words=200,
                        height=1000,
                        width=2000).generate_from_frequencies(counter)
         plt.imshow(wc)
