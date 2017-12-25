@@ -57,8 +57,10 @@ class JobSpider:
         """ 爬取职位描述
         """
         for c in self.company:
-            r = requests.get(
-                c.get('href'), headers=self.headers).content.decode('gbk')
+            try:
+                r = requests.get(c.get('href'), headers=self.headers).content.decode('gbk')
+            except requests.RequestException as e:
+                continue
             if (BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox")!=None):
                 bs = BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox").text
             else:
@@ -218,7 +220,7 @@ class JobSpider:
             y[i] = c[1]
             i=i+1
         func = interpolate.interp1d(x, y, kind='cubic')
-        x=np.arange(4200, 16800, 100)
+        x=np.arange(x[0]+1, x[-1]-1, 10)
         y = func(x)
         plt.xlabel('月薪')
         plt.ylabel('岗位数')
@@ -287,13 +289,23 @@ class JobSpider:
 if __name__ == "__main__":
     spider = JobSpider()
     spider.job_spider()
+    print("基本职位搜索完毕！")
     # 按需启动
     spider.post_require()
+    print("职位详情爬取完毕！")
     spider.post_counter()
+    print("职位预统计完毕！")
     spider.post_salary_locate()
+    print("职位分职位薪资地点统计完毕！")
     spider.post_salary()
-    #spider.insert_into_db()
-    spider.post_salary_localcounter()
-    spider.post_desc_counter()
-    spider.world_cloud()
+    print("薪酬统一处理完毕！")
     spider.post_salary_counter()
+    print("薪酬统计展示完毕！")
+    spider.post_salary_localcounter()
+    print("工作地点统计完毕！")
+    spider.post_desc_counter()
+    print("词云数据预处理完毕！")
+    spider.world_cloud()
+    print("词云生成完毕完毕！")
+    #spider.insert_into_db()
+    #print("数据导入数据库完毕！")
