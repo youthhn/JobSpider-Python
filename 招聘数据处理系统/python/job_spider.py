@@ -32,7 +32,7 @@ class JobSpider:
     def job_spider(self):
         """ 爬虫入口
         """
-        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=&keyword=&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
+        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=080200%2C080300%2C070200%2C070300&keyword=%E5%AE%9E%E4%B9%A0%E7%94%9F&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
         urls = [url.format(p) for p in range(1, 14)]
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')
@@ -174,7 +174,10 @@ class JobSpider:
         with open(os.path.join("data", "post_salary_locate.csv"),
                   "r", encoding="utf-8") as f:
             f_csv = csv.reader(f)
-            lst = [row[2] for row in f_csv]
+            lst=[]
+            for row in f_csv:
+                row[2]=row[2].split("-")[0]
+                lst.append(row[2])
         counter = Counter(lst).most_common()
         x=[0]*len(counter)
         y=[0]*len(counter)
@@ -291,6 +294,6 @@ if __name__ == "__main__":
     spider.post_salary()
     #spider.insert_into_db()
     spider.post_salary_localcounter()
-    spider.post_salary_counter()
     spider.post_desc_counter()
     spider.world_cloud()
+    spider.post_salary_counter()
