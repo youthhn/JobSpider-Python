@@ -212,7 +212,6 @@ function kwdGoSearch(keyword)
         manualTrack("searchOfHome", trackChangeParams);
     }
     var url = 'http://search.51job.com/list/' + encodeURIComponent(encodeURIComponent(jobarea)) + ',000000,' + encodeURIComponent(encodeURIComponent(fun)) + ',' + encodeURIComponent(encodeURIComponent(ind)) + ',9,99,' + encodeURIComponent(encodeURIComponent(keyword)) + ',' + encodeURIComponent(encodeURIComponent(keywordtype)) + ',1.html?lang=c&stype=&postchannel=' + postchannel + '&workyear=' + workyear + '&cotype=' + cottype + '&degreefrom=' + degreefrom + '&jobterm=' + jobterm + '&companysize=' + companysize + '&providesalary=' + providesalary +'&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=&dibiaoid=0&address=&line=&specialarea='+ specialarea +'&from=&welfare=';
-    alert(url);
 	window.location = url;
 }
 

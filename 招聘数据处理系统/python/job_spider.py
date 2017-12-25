@@ -32,7 +32,7 @@ class JobSpider:
     def job_spider(self):
         """ 爬虫入口
         """
-        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=080200%2C080300%2C070200%2C070300&keyword=%E5%AE%9E%E4%B9%A0%E7%94%9F&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
+        url = "http://search.51job.com/list/080900%252C080500%252C080600%252C080800%252C081600,000000,0000,00,9,99,%25E8%25BD%25AF%25E4%25BB%25B6,2,2.html?lang=c&stype=1&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0&confirmdate=9&fromType=1&dibiaoid=0&address=&line=&specialarea=00&from=&welfare="
         urls = [url.format(p) for p in range(1, 14)]
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')

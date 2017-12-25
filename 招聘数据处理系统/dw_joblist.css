@@ -68,7 +68,19 @@ body{font-size:14px;background-color:#fff}
 	padding: 5px 0 5px 73px;
 	background-color: #fff
 }
-.dw_search .el .mytxt{display:block;width:100%;height:24px;line-height:24px;color:#333;text-align:left;text-indent:12px;margin-left:-1px;padding:0;border:0 none;border-left:1px solid #ddd}
+.dw_search .el .mytxt{
+	display: block;
+	width: 100%;
+	height: 24px;
+	line-height: 24px;
+	color: #333;
+	text-align: left;
+	text-indent: 12px;
+	margin-left: -68px;
+	padding: 0;
+	border: 0 none;
+	border-left: 1px solid #ddd
+}
 .dw_search .txt{#display:inline;width:179px;margin:0 0 0 10px}
 .dw_search .txt .ef{height:24px;line-height:24px;color:#333;padding:5px 0}
 .dw_search .txt .ic{height:24px;line-height:24px}
