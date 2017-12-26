@@ -13,7 +13,7 @@ Python 是一门很优雅的语言，用着挺舒服的。所以就在想，现�
 
 招聘信息中，各城市岗位数量分布如下图。 
 
-![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/%E6%8B%9B%E8%81%98%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F/python/images/locate.png)  
+![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/images/locate.png)  
 
 
 ## 职位要求  
@@ -22,7 +22,7 @@ Python 是一门很优雅的语言，用着挺舒服的。所以就在想，现�
 
 所有词语前 200 生成词云  
 
-![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/%E6%8B%9B%E8%81%98%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F/python/images/wc.jpg)  
+![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/images/wc.jpg)  
 
 一直觉得词云还是得**黑色背景**视觉冲击更大一点。   
 
@@ -35,7 +35,7 @@ Python 是一门很优雅的语言，用着挺舒服的。所以就在想，现�
 
 看看总体的情况  
 
-![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/%E6%8B%9B%E8%81%98%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F/python/images/money.png)  
+![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/images/money.png)  
 
 
 书还是要多读的，掌握多一项技能就多一个优势。也不要局限于只是专业方面的书，**全方位、多角度、深层次、立体化**提高自己的知识水平，也能让自己**腹有诗书气自华**，万一找到女朋友了呢？  
