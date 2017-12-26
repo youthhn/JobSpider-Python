@@ -360,9 +360,9 @@ class JobSpider:
         ui.label_3.setText("正在搜索职位......请稍等！")
         app.processEvents()
         spider.job_spider()
-        ui.label_3.setText("职位基本信息搜索完毕！")
+        ui.label_3.setText("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！（约5分钟）")
         app.processEvents()
-        print("职位基本信息搜索完毕！正在搜索详细信息......请稍等！")
+        print("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！")
         # 按需启动
         spider.post_require()
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！")
