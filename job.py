@@ -1,7 +1,7 @@
 import os
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QAction,QApplication,QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QAction,QApplication,QDialog
 from pprint import pprint
 import csv
 from collections import Counter
@@ -15,16 +15,16 @@ from wordcloud import WordCloud
 from scipy import interpolate
 import webbrowser
 import threading
+import area
+from PyQt5.QtCore import pyqtSlot
 #指定默认字体
 matplotlib.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['font.family']='sans-serif'
 #解决负号'-'显示为方块的问题
 matplotlib.rcParams['axes.unicode_minus'] = False
 
-class Ui_jobui(QMainWindow):
-    def __init__(self):
-        QMainWindow.__init__(self)
-        self.setupUi(self)
+class Ui_jobui(object):
+
     def setupUi(self, jobui):
         jobui.setObjectName("jobui")
         jobui.resize(640, 500)
@@ -33,10 +33,10 @@ class Ui_jobui(QMainWindow):
         jobui.setWindowIcon(icon)
         jobui.setToolTipDuration(-1)
         self.label = QtWidgets.QLabel(jobui)
-        self.label.setGeometry(QtCore.QRect(60, 110, 91, 16))
+        self.label.setGeometry(QtCore.QRect(60, 120, 91, 16))
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(jobui)
-        self.label_2.setGeometry(QtCore.QRect(130, 10, 381, 71))
+        self.label_2.setGeometry(QtCore.QRect(140, 20, 381, 71))
         font = QtGui.QFont()
         font.setFamily("Adobe 黑体 Std R")
         font.setPointSize(20)
@@ -45,7 +45,7 @@ class Ui_jobui(QMainWindow):
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
         self.label_3 = QtWidgets.QLabel(jobui)
-        self.label_3.setGeometry(QtCore.QRect(160, 220, 351, 201))
+        self.label_3.setGeometry(QtCore.QRect(250, 220, 351, 201))
         font = QtGui.QFont()
         font.setFamily("黑体")
         font.setPointSize(11)
@@ -54,7 +54,7 @@ class Ui_jobui(QMainWindow):
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
         self.lineEdit = QtWidgets.QLineEdit(jobui)
-        self.lineEdit.setGeometry(QtCore.QRect(60, 130, 371, 41))
+        self.lineEdit.setGeometry(QtCore.QRect(60, 140, 371, 41))
         font = QtGui.QFont()
         font.setFamily("Adobe 宋体 Std L")
         font.setPointSize(18)
@@ -64,34 +64,191 @@ class Ui_jobui(QMainWindow):
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton = QtWidgets.QPushButton(jobui)
-        self.pushButton.setGeometry(QtCore.QRect(460, 130, 121, 41))
+        self.pushButton.setGeometry(QtCore.QRect(460, 140, 121, 41))
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.clicked.connect(self.key)
         self.pushButton_2 = QtWidgets.QPushButton(jobui)
         self.pushButton_2.setGeometry(QtCore.QRect(270, 440, 0, 0))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.clicked.connect(self.report)
+        self.label_4 = QtWidgets.QLabel(jobui)
+        self.label_4.setGeometry(QtCore.QRect(240, 90, 181, 16))
+        self.label_4.setObjectName("label_4")
+        self.comboBox_province1 = QtWidgets.QComboBox(jobui)
+        self.comboBox_province1.setGeometry(QtCore.QRect(50, 220, 69, 22))
+        self.comboBox_province1.setObjectName("comboBox_province1")
+        self.comboBox_city1 = QtWidgets.QComboBox(jobui)
+        self.comboBox_city1.setGeometry(QtCore.QRect(130, 220, 69, 22))
+        self.comboBox_city1.setObjectName("comboBox_city1")
+        self.label_5 = QtWidgets.QLabel(jobui)
+        self.label_5.setGeometry(QtCore.QRect(90, 200, 91, 16))
+        self.label_5.setObjectName("label_5")
+        self.comboBox_city2 = QtWidgets.QComboBox(jobui)
+        self.comboBox_city2.setGeometry(QtCore.QRect(130, 280, 69, 22))
+        self.comboBox_city2.setObjectName("comboBox_city2")
+        self.label_6 = QtWidgets.QLabel(jobui)
+        self.label_6.setGeometry(QtCore.QRect(90, 260, 91, 16))
+        self.label_6.setObjectName("label_6")
+        self.comboBox_province2 = QtWidgets.QComboBox(jobui)
+        self.comboBox_province2.setGeometry(QtCore.QRect(50, 280, 69, 22))
+        self.comboBox_province2.setObjectName("comboBox_province2")
+        self.comboBox_city3 = QtWidgets.QComboBox(jobui)
+        self.comboBox_city3.setGeometry(QtCore.QRect(130, 340, 69, 22))
+        self.comboBox_city3.setObjectName("comboBox_city3")
+        self.label_7 = QtWidgets.QLabel(jobui)
+        self.label_7.setGeometry(QtCore.QRect(90, 320, 91, 16))
+        self.label_7.setObjectName("label_7")
+        self.comboBox_province3 = QtWidgets.QComboBox(jobui)
+        self.comboBox_province3.setGeometry(QtCore.QRect(50, 340, 69, 22))
+        self.comboBox_province3.setObjectName("comboBox_province3")
+        self.comboBox_city4 = QtWidgets.QComboBox(jobui)
+        self.comboBox_city4.setGeometry(QtCore.QRect(130, 400, 69, 22))
+        self.comboBox_city4.setObjectName("comboBox_city4")
+        self.label_8 = QtWidgets.QLabel(jobui)
+        self.label_8.setGeometry(QtCore.QRect(90, 380, 91, 16))
+        self.label_8.setObjectName("label_8")
+        self.comboBox_province4 = QtWidgets.QComboBox(jobui)
+        self.comboBox_province4.setGeometry(QtCore.QRect(50, 400, 69, 22))
+        self.comboBox_province4.setObjectName("comboBox_province4")
+
         self.retranslateUi(jobui)
         QtCore.QMetaObject.connectSlotsByName(jobui)
+
 
     def retranslateUi(self, jobui):
         _translate = QtCore.QCoreApplication.translate
         jobui.setWindowTitle(_translate("jobui", "招聘系统数据分析平台"))
         self.label.setText(_translate("jobui", "请输入关键词："))
-        self.label_2.setText(_translate("jobui", "招聘系统数据分析平台 V1.0"))
+        self.label_2.setText(_translate("jobui", "招聘系统数据分析平台"))
         self.pushButton.setText(_translate("jobui", "立 即 分 析"))
         self.pushButton_2.setText(_translate("jobui", "点击查看报告"))
+        self.label_4.setText(_translate("jobui", "By  蒋傲天        version 1.0"))
+        self.label_5.setText(_translate("jobui", "请选择地市1："))
+        self.label_6.setText(_translate("jobui", "请选择地市2："))
+        self.label_7.setText(_translate("jobui", "请选择地市3："))
+        self.label_8.setText(_translate("jobui", "请选择地市4："))
 
-    def key(self, jobui):
+
+class Logic(QDialog, Ui_jobui):
+    def __init__(self, parent=None):
+        super(Logic, self).__init__(parent)
+        self.setupUi(self)
+        self.comboBox_province1.clear()  # 清空items
+        self.comboBox_province1.addItem('请选择')
+        self.comboBox_province2.clear()  # 清空items
+        self.comboBox_province2.addItem('请选择')
+        self.comboBox_province3.clear()  # 清空items
+        self.comboBox_province3.addItem('请选择')
+        self.comboBox_province4.clear()  # 清空items
+        self.comboBox_province4.addItem('请选择')
+        for k, v in area.dictProvince.items():
+            self.comboBox_province1.addItem(v, k)  # 键、值反转
+        for k, v in area.dictProvince.items():
+            self.comboBox_province2.addItem(v, k)  # 键、值反转
+        for k, v in area.dictProvince.items():
+            self.comboBox_province3.addItem(v, k)  # 键、值反转
+        for k, v in area.dictProvince.items():
+            self.comboBox_province4.addItem(v, k)  # 键、值反转
+
+    @pyqtSlot(int)
+    def on_comboBox_province1_activated(self, index):
+        # 取省份名称
+        # value = self.comboBox_province.itemText(index)
+        # 取省份的键值
+        key = self.comboBox_province1.itemData(index)
+
+        self.comboBox_city1.clear()  # 清空items
+        if key:
+            # self.lblResult.setText('未选择！')
+            self.comboBox_city1.addItem('请选择')
+            # 初始化市
+            for k, v in area.dictCity[key].items():
+                self.comboBox_city1.addItem(v, k)  # 键、值反转
+
+    @pyqtSlot(int)
+    def on_comboBox_province2_activated(self, index):
+
+        key = self.comboBox_province2.itemData(index)
+
+        self.comboBox_city2.clear()  # 清空items
+        if key:
+            # self.lblResult.setText('未选择！')
+            self.comboBox_city2.addItem('请选择')
+            # 初始化市
+            for k, v in area.dictCity[key].items():
+                self.comboBox_city2.addItem(v, k)  # 键、值反转
+
+    @pyqtSlot(int)
+    def on_comboBox_province3_activated(self, index):
+        key = self.comboBox_province3.itemData(index)
+
+        self.comboBox_city3.clear()  # 清空items
+        if key:
+            # self.lblResult.setText('未选择！')
+            self.comboBox_city3.addItem('请选择')
+            # 初始化市
+            for k, v in area.dictCity[key].items():
+                self.comboBox_city3.addItem(v, k)  # 键、值反转
+
+    @pyqtSlot(int)
+    def on_comboBox_province4_activated(self, index):
+        key = self.comboBox_province4.itemData(index)
+
+        self.comboBox_city4.clear()  # 清空items
+        if key:
+            # self.lblResult.setText('未选择！')
+            self.comboBox_city4.addItem('请选择')
+            # 初始化市
+            for k, v in area.dictCity[key].items():
+                self.comboBox_city4.addItem(v, k)  # 键、值反转
+
+    @pyqtSlot()
+    def on_pushButton_clicked(self):
         self.keywd=self.lineEdit.text()
+        # 取当前索引
+        province_index1 = self.comboBox_province1.currentIndex()
+        city_index1 = self.comboBox_city1.currentIndex()
+        province_index2 = self.comboBox_province2.currentIndex()
+        city_index2 = self.comboBox_city2.currentIndex()
+        province_index3 = self.comboBox_province3.currentIndex()
+        city_index3 = self.comboBox_city3.currentIndex()
+        province_index4 = self.comboBox_province4.currentIndex()
+        city_index4 = self.comboBox_city4.currentIndex()
+        p1 = self.comboBox_province1.itemData(province_index1)
+        p2 = self.comboBox_province2.itemData(province_index2)
+        p3 = self.comboBox_province3.itemData(province_index3)
+        p4 = self.comboBox_province4.itemData(province_index4)
+        c1 = self.comboBox_city1.itemData(city_index1)
+        c2 = self.comboBox_city2.itemData(city_index2)
+        c3 = self.comboBox_city3.itemData(city_index3)
+        c4 = self.comboBox_city4.itemData(city_index4)
+        if p1 == None:
+            p1 = ''
+            c1 = ''
+        if p2 == None:
+            p2 = ''
+            c2 = ''
+        if p3 == None:
+            p3 = ''
+            c3 = ''
+        if p4 == None:
+            p4 = ''
+            c4 = ''
+        if ((c1 == None) and (p1 != None)):
+            c1 = '0000'
+        if ((c2 == None) and (p2 != None)):
+            c2 = '0000'
+        if ((c3 == None) and (p3 != None)):
+            c3 = '0000'
+        if ((c4 == None) and (p4 != None)):
+            c4 = '0000'
+        self.pkey=p1+c1+','+p2+c2+','+p3+c3+','+p4+c4
         sr = threading.Thread(target=spider.run)
         sr.start()
         #spider.run()
         app.processEvents()
 
-    def report(self,jobui):
+    @pyqtSlot()
+    def on_pushButton_2_clicked(self):
         webbrowser.open_new("index.html")
-
 class JobSpider:
 
     def __init__(self):
@@ -106,7 +263,7 @@ class JobSpider:
     def job_spider(self):
         """ 爬虫入口
         """
-        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
+        url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea="+ui.pkey+"&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
         urls = [url.format(p) for p in range(1, 15)]
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')
@@ -390,12 +547,12 @@ class JobSpider:
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！")
         app.processEvents()
         print("工作地点统计完毕！")
-        #spider.post_desc_counter()
+        spider.post_desc_counter()
         ui.label_3.setText(
             "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！")
         app.processEvents()
         print("词云数据预处理完毕！")
-        #spider.world_cloud()
+        spider.world_cloud()
         ui.label_3.setText(
             "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！")
         app.processEvents()
@@ -403,10 +560,12 @@ class JobSpider:
         # spider.insert_into_db()
         # print("数据导入数据库完毕！")
         ui.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
+        ui.label_3.setText(
+            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！\n\n报告生成完毕......请查阅！")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ui = Ui_jobui()
+    ui = Logic()
     ui.show()
     spider = JobSpider()
     sys.exit(app.exec_())
