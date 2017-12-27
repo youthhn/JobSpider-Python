@@ -14,6 +14,7 @@ import jieba
 from wordcloud import WordCloud
 from scipy import interpolate
 import webbrowser
+import threading
 #指定默认字体
 matplotlib.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['font.family']='sans-serif'
@@ -83,8 +84,9 @@ class Ui_jobui(QMainWindow):
 
     def key(self, jobui):
         self.keywd=self.lineEdit.text()
-        spider.run()
-        self.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
+        sr = threading.Thread(target=spider.run)
+        sr.start()
+        #spider.run()
         app.processEvents()
 
     def report(self,jobui):
@@ -400,6 +402,7 @@ class JobSpider:
         print("词云生成完毕！")
         # spider.insert_into_db()
         # print("数据导入数据库完毕！")
+        ui.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
