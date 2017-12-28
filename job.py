@@ -202,6 +202,8 @@ class Logic(QDialog, Ui_jobui):
 
     @pyqtSlot()
     def on_pushButton_clicked(self):
+        self.pushButton_2.setGeometry(QtCore.QRect(270, 440, 0, 0))
+        app.processEvents()
         self.keywd=self.lineEdit.text()
         # 取当前索引
         province_index1 = self.comboBox_province1.currentIndex()
@@ -241,8 +243,8 @@ class Logic(QDialog, Ui_jobui):
         if ((c4 == None) and (p4 != None)):
             c4 = '0000'
         self.pkey=p1+c1+','+p2+c2+','+p3+c3+','+p4+c4
-        sr = threading.Thread(target=spider.run)
-        sr.start()
+        self.sr = threading.Thread(target=spider.run)
+        self.sr.start()
         #spider.run()
         app.processEvents()
 
