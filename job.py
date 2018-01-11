@@ -11,12 +11,15 @@ from bs4 import BeautifulSoup
 import requests
 import matplotlib.pyplot as plt
 import jieba
-from wordcloud import WordCloud
+from pyecharts import WordCloud
 from scipy import interpolate
 import webbrowser
 import threading
 import area
 from PyQt5.QtCore import pyqtSlot
+from pyecharts import Line
+from pyecharts_snapshot.main import make_a_snapshot
+from pyecharts import Geo
 #指定默认字体
 matplotlib.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['font.family']='sans-serif'
@@ -266,7 +269,7 @@ class JobSpider:
         """ 爬虫入口
         """
         url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea="+ui.pkey+"&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
-        urls = [url.format(p) for p in range(1, 15)]
+        urls = [url.format(p) for p in range(1, 20)]
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')
             bs = BeautifulSoup(r, 'lxml').find(
@@ -422,14 +425,13 @@ class JobSpider:
             x[i] = c[0]
             y[i] = c[1]
             i=i+1
-        plt.xlabel('\n地点')
-        plt.ylabel('岗位数')
-        # 添加标题
-        plt.title('【工作地点统计】')
-        plt.figure(figsize=(15, 6))
-        plt.bar(np.arange(0,len(counter),1), y , color='rgb', tick_label= x)
-        #plt.show()
-        plt.savefig(os.path.join("images", "locate.png"))
+        geo = Geo("", "", title_color="#fff",
+                  title_pos="center", width=800,
+                  height=500, background_color='#404a59')
+        geo.add("", x, y, type="heatmap", is_visualmap=True, visual_range=[0, max(y)],
+        visual_text_color='#fff')
+        geo.render('dd.html')
+        make_a_snapshot('dd.html', os.path.join("images", "locate.png"))
         with open(os.path.join("data", "post_local.csv"),
                   "w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
@@ -453,15 +455,21 @@ class JobSpider:
             y[i] = c[1]
             i=i+1
         func = interpolate.interp1d(x, y, kind='cubic')
-        x=np.arange(x[0]+1, x[-1]-1, 10)
+        x=np.arange(x[0]+50, x[-1]-50, 10)
         y = func(x)
-        plt.xlabel('月薪')
-        plt.ylabel('岗位数')
-        # 添加标题
-        plt.title('【薪资统计】')
-        plt.figure(figsize=(15, 6))
-        plt.plot(x,y, color="red", linewidth=2.0)
-        plt.savefig(os.path.join("images", "money.png"))
+        i=0;
+        for xz in y :
+            if xz < 0 :
+                y[i] = 0
+                i=i+1
+            else:
+                y[i]=y[i]
+                i=i+1
+        line = Line("")
+        line.add("", x, y, is_fill=True, line_opacity=0.2,
+                 area_opacity=0.4, symbol=None)
+        line.render('xz.html')
+        make_a_snapshot('xz.html', os.path.join("images", "money.png"))
         with open(os.path.join("data", "post_salary_counter1.csv"),
                   "w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
@@ -478,15 +486,30 @@ class JobSpider:
             for row in f_csv:
                 counter[row[0]] = counter.get(row[0], int(row[1]))
             #pprint(counter)
-        file_path = os.path.join("font", "msyh.ttf")
-        wc = WordCloud(font_path=file_path,
-                       max_words=500,
-                       height=1000,
-                       width=2000).generate_from_frequencies(counter)
-        plt.imshow(wc)
-        plt.axis('off')
+        x=[0]*101
+        y=[0]*101
+        i=0
+        #tuple(counter)
+        for c in counter:
+            x[i] = c
+            y[i] = counter[c]
+            i=i+1
+            if i>100:
+                break
+        wordcloud = WordCloud(width=1300, height=620)
+        wordcloud.add("", x, y, word_size_range=[30, 100],
+                      shape='diamond')
+        wordcloud.render('wc.html')
+        make_a_snapshot('wc.html', os.path.join("images", "wc.png"))
+        #file_path = os.path.join("font", "msyh.ttf")
+        #wc = WordCloud(font_path=file_path,
+                       #max_words=500,
+                      # height=800,
+                       #width=1600).generate_from_frequencies(counter)
+        #plt.imshow(wc)
+        #plt.axis('off')
         #plt.show()
-        wc.to_file(os.path.join("images", "wc.jpg"))
+        #wc.to_file(os.path.join("images", "wc.jpg"))
 
     @staticmethod
     def insert_into_db():
@@ -525,7 +548,7 @@ class JobSpider:
         app.processEvents()
         print("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！")
         # 按需启动
-        spider.post_require()
+        #spider.post_require()
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！")
         app.processEvents()
         print("职位详情爬取完毕！")
@@ -549,7 +572,7 @@ class JobSpider:
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！")
         app.processEvents()
         print("工作地点统计完毕！")
-        spider.post_desc_counter()
+        #spider.post_desc_counter()
         ui.label_3.setText(
             "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！")
         app.processEvents()
