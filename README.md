@@ -22,7 +22,7 @@ Python 是一门很优雅的语言，用着挺舒服的。所以就在想，现�
 
 所有词语前 200 生成词云  
 
-![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/images/wc.jpg)  
+![](https://github.com/hnmrxz/JobSpider-Python-PHP/blob/master/images/wc.png)  
 
 一直觉得词云还是得**黑色背景**视觉冲击更大一点。   
 
