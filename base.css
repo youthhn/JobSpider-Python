@@ -56,7 +56,11 @@
 .container{width:1002px;margin:0 auto}
 
 /*Í·²¿*/
-.header{position:relative;min-width:1002px;font:14px "Microsoft YaHei";z-index:998}
+.header{
+	position: relative;
+	font: 14px "Microsoft YaHei";
+	z-index: 998
+}
 .header p,.header ul{margin:0;padding:0}
 .header li{font-family:"Microsoft YaHei";list-style:none}
 .header a{font-family:"microsoft yahei" !important;color:#333;text-decoration:none}
@@ -116,7 +120,7 @@
 .header .uer .e6{background-position:0 -200px}
 .header .uer .uname{display:inline-block;max-width:100px;height:32px;padding-left:26px;background-position:-11px -284px}
 .header .nag,.header .snag{
-	height: 156px;
+	height: 169px;
 	line-height: 56px;
 	background-color: #fff;
 	border-bottom: 1px solid #ddd
@@ -178,7 +182,7 @@
 .header.fix .el .addbut input{float:left;width:73px;height:30px;line-height:30px;color:#333;cursor:pointer;margin-left:5px;background-color:#fff;border:0 none}
 .header.fix .el .addbut:hover,.header.fix .el .addbut:hover input{background-color:#eee}
 .header.fix .el .addbut em{float:right;width:10px;height:10px;margin:10px 13px 0 0;background-position:-75px -85px}
-.header.fix button{float:right;width:120px;height:30px;line-height:28px;#line-height:25px;font-size:16px;color:#fff;cursor:pointer;margin-top:10px;background-color:#ff6000;border:1px solid #fff}
+.header.fix button{float:right;width:120px;height:30px;line-height:28px;font-size:16px;color:#fff;cursor:pointer;margin-top:10px;background-color:#ff6000;border:1px solid #fff}
 .header.fix button:hover{background-color:#ff8900}
 
 .en .header .nag .nlink a{margin-left:20px}
@@ -187,13 +191,16 @@
 .en .header.fix .el ul{width:98px}
 .en .header .el .ipt{width:357px;padding-left:98px}
 /*µ×²¿*/
-.footer{clear:both;width:100%;min-width:1002px;font:12px "Microsoft YaHei";background-color:#fff}
+.footer{clear:both;width:100%;font:12px "Microsoft YaHei";background-color:#fff}
 .footer{color:#999;padding:35px 0;border-top:1px solid #ddd}
-.footer a,.footer *{font-size:12px !important;font-family:"Microsoft YaHei" !important}
+.footer a,.footer *{
+	font-size: 14px !important;
+	font-family: "Microsoft YaHei" !important
+}
 .footer a{text-decoration:none}
 .footer img{vertical-align:top}
 .footer .in,
-	.license .in{width:1002px;margin:0 auto}
+	.license .in{margin:0 auto}
 .footer .nag{margin-bottom:15px}
 .footer .nag a{color:#999}
 .footer .nag a:hover{color:#ff6000}

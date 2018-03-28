@@ -1,5 +1,7 @@
 import os
 import sys
+
+import pygame
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QAction,QApplication,QDialog
 from pprint import pprint
@@ -269,7 +271,15 @@ class JobSpider:
         """ 爬虫入口
         """
         url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea="+ui.pkey+"&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
-        urls = [url.format(p) for p in range(1, 20)]
+        urls = [url.format(p) for p in range(1, 18)]
+        pygame.init()
+        if ui.keywd:
+            self.textk = "搜索关键字： "+ui.keywd
+        else:
+            self.textk = "全职位搜索"
+        font = pygame.font.Font(os.path.join("font", "msyh.ttf"), 28)
+        rtext = font.render(self.textk, True, (0, 0, 0), (255, 255, 255))
+        pygame.image.save(rtext, os.path.join("images", "key.jpg"))
         for url in urls:
             r = requests.get(url, headers=self.headers).content.decode('gbk')
             bs = BeautifulSoup(r, 'lxml').find(
@@ -296,6 +306,7 @@ class JobSpider:
             try:
                 r = requests.get(c.get('href'), headers=self.headers).content.decode('gbk')
             except requests.RequestException as e:
+                print("链接被封！")
                 continue
             if (BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox")!=None):
                 bs = BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox").text
@@ -428,7 +439,7 @@ class JobSpider:
         geo = Geo("", "", title_color="#fff",
                   title_pos="center", width=800,
                   height=500, background_color='#404a59')
-        geo.add("", x, y, type="heatmap", is_visualmap=True, visual_range=[0, max(y)],
+        geo.add("", x, y, is_visualmap=True, visual_range=[0, max(y)],symbol_size=15,
         visual_text_color='#fff')
         geo.render('dd.html')
         make_a_snapshot('dd.html', os.path.join("images", "locate.png"))
@@ -501,15 +512,6 @@ class JobSpider:
                       shape='diamond')
         wordcloud.render('wc.html')
         make_a_snapshot('wc.html', os.path.join("images", "wc.png"))
-        #file_path = os.path.join("font", "msyh.ttf")
-        #wc = WordCloud(font_path=file_path,
-                       #max_words=500,
-                      # height=800,
-                       #width=1600).generate_from_frequencies(counter)
-        #plt.imshow(wc)
-        #plt.axis('off')
-        #plt.show()
-        #wc.to_file(os.path.join("images", "wc.jpg"))
 
     @staticmethod
     def insert_into_db():
@@ -524,8 +526,8 @@ class JobSpider:
         conn = pymysql.connect(host="localhost",
                                port=3306,
                                user="root",
-                               passwd="0303",
-                               db="chenx",
+                               passwd="raspberry",
+                               db="job",
                                charset="utf8")
         cur = conn.cursor()
         with open(os.path.join("data", "post_salary.csv"),
@@ -548,7 +550,7 @@ class JobSpider:
         app.processEvents()
         print("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！")
         # 按需启动
-        #spider.post_require()
+        spider.post_require()
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！")
         app.processEvents()
         print("职位详情爬取完毕！")
@@ -572,7 +574,7 @@ class JobSpider:
         ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！")
         app.processEvents()
         print("工作地点统计完毕！")
-        #spider.post_desc_counter()
+        spider.post_desc_counter()
         ui.label_3.setText(
             "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！")
         app.processEvents()
@@ -582,11 +584,11 @@ class JobSpider:
             "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！")
         app.processEvents()
         print("词云生成完毕！")
-        # spider.insert_into_db()
-        # print("数据导入数据库完毕！")
+        spider.insert_into_db()
+        print("数据导入数据库完毕！")
         ui.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
         ui.label_3.setText(
-            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！\n\n报告生成完毕......请查阅！")
+            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！\n数据导入数据库完毕！\n\n报告生成完毕......请查阅！")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
