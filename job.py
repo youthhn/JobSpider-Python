@@ -271,7 +271,7 @@ class JobSpider:
         """ 爬虫入口
         """
         url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea="+ui.pkey+"&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
-        urls = [url.format(p) for p in range(1, 18)]
+        urls = [url.format(p) for p in range(1, 10)]
         pygame.init()
         if ui.keywd:
             self.textk = "搜索关键字： "+ui.keywd
