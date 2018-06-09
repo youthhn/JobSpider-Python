@@ -1,6 +1,6 @@
 # Python爬虫 分析岗位招聘情况  
   
-  **前排万分感谢@chenjiandongx前辈开源本代码！**
+  **前排万分感谢@chenjiandongx前辈开源本系统爬虫模块核心源代码与思路！**
 
 Life is short, you need Python。
 Python 是一门很优雅的语言，用着挺舒服的。所以就在想，现在各专业的岗位招聘，公司们需要什么样的人才？要有什么样的技能？以及对应的市场如何？
