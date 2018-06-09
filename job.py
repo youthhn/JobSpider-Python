@@ -3,15 +3,12 @@ import sys
 
 import pygame
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QAction,QApplication,QDialog
-from pprint import pprint
+from PyQt5.QtWidgets import QApplication, QDialog
 import csv
 from collections import Counter
-import matplotlib
-import  numpy as np
+import numpy as np
 from bs4 import BeautifulSoup
 import requests
-import matplotlib.pyplot as plt
 import jieba
 from pyecharts import WordCloud
 from scipy import interpolate
@@ -22,11 +19,6 @@ from PyQt5.QtCore import pyqtSlot
 from pyecharts import Line
 from pyecharts_snapshot.main import make_a_snapshot
 from pyecharts import Geo
-#指定默认字体
-matplotlib.rcParams['font.sans-serif'] = ['SimHei']
-matplotlib.rcParams['font.family']='sans-serif'
-#解决负号'-'显示为方块的问题
-matplotlib.rcParams['axes.unicode_minus'] = False
 
 class Ui_jobui(object):
 
@@ -130,7 +122,6 @@ class Ui_jobui(object):
         self.label_6.setText(_translate("jobui", "请选择地市2："))
         self.label_7.setText(_translate("jobui", "请选择地市3："))
         self.label_8.setText(_translate("jobui", "请选择地市4："))
-
 
 class Logic(QDialog, Ui_jobui):
     def __init__(self, parent=None):
@@ -256,12 +247,13 @@ class Logic(QDialog, Ui_jobui):
     @pyqtSlot()
     def on_pushButton_2_clicked(self):
         webbrowser.open_new("index.html")
+
 class JobSpider:
 
     def __init__(self):
-        self.company = []
-        self.text = ""
-        self.headers = {
+        self.company = []  # 职位完整信息
+        self.text = ""  # 职位介绍
+        self.headers = {  # 爬虫头
             'X-Requested-With': 'XMLHttpRequest',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36'
                           '(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
@@ -270,8 +262,12 @@ class JobSpider:
     def job_spider(self):
         """ 爬虫入口
         """
+        # 生成前程无忧搜索URL
         url = "http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea="+ui.pkey+"&keyword="+ui.keywd+"&keywordtype=2&lang=c&stype=2&postchannel=0000&fromType=1&confirmdate=9"
+        # 生成前10页逐页URL
         urls = [url.format(p) for p in range(1, 10)]
+
+        # 生成关键词图片
         pygame.init()
         if ui.keywd:
             self.textk = "搜索关键字： "+ui.keywd
@@ -280,40 +276,41 @@ class JobSpider:
         font = pygame.font.Font(os.path.join("font", "msyh.ttf"), 28)
         rtext = font.render(self.textk, True, (0, 0, 0), (255, 255, 255))
         pygame.image.save(rtext, os.path.join("images", "key.jpg"))
-        for url in urls:
-            r = requests.get(url, headers=self.headers).content.decode('gbk')
-            bs = BeautifulSoup(r, 'lxml').find(
-                "div", class_="dw_table").find_all("div", class_="el")
+
+        for url in urls:  # 逐页访问爬取
+            r = requests.get(url, headers=self.headers).content.decode('gbk')  # 访问URL
+            bs = BeautifulSoup(r, 'lxml').find("div", class_="dw_table").find_all("div", class_="el")  # 抓取职位搜索结果页职位div块
             for b in bs:
-                try:
-                    href, post = b.find('a')['href'], b.find('a')['title']
-                    locate = b.find('span', class_='t3').text
-                    salary = b.find('span', class_='t4').text
+                try:  # 使用try处理URL被封或网络情况不良时的程序崩溃问题
+                    href, post = b.find('a')['href'], b.find('a')['title']  # 抓取职位名与详情页链接
+                    locate = b.find('span', class_='t3').text  # 抓取工作地点
+                    salary = b.find('span', class_='t4').text  # 抓取薪资
                     d = {
                         'href': href,
                         'post': post,
                         'locate': locate,
                         'salary': salary
                     }
-                    self.company.append(d)
+                    self.company.append(d)  # 逐条合成各数据添加入company变量
                 except Exception:
+                    print("网络故障或本页无任何职位！")
                     pass
 
     def post_require(self):
         """ 爬取职位描述
         """
-        for c in self.company:
+        for c in self.company:  # 逐个打开职位详情链接并获取详情内容
             try:
                 r = requests.get(c.get('href'), headers=self.headers).content.decode('gbk')
             except requests.RequestException as e:
                 print("链接被封！")
                 continue
-            if (BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox")!=None):
-                bs = BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox").text
+            if ( BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox")!=None ):
+                bs = BeautifulSoup(r, 'lxml').find('div', class_="bmsg job_msg inbox").text  #得到职位详情介绍文字
             else:
                 continue
             s = bs.replace("举报", "").replace("分享", "").replace("\t", "").replace("addjob", "").strip()
-            self.text += s
+            self.text += s  # 逐条将职位介绍写入text变量
         # print(self.text)
         with open(os.path.join("data", "post_require.txt"),"w+", encoding="utf-8" ,newline='') as f:
             f.write(self.text)
@@ -323,26 +320,23 @@ class JobSpider:
         """ 职位描述统计
         """
         # import thulac
-        post = open(os.path.join("data", "post_require.txt"),
-                    "r", encoding="utf-8").read()
+        post = open(os.path.join("data", "post_require.txt"), "r", encoding="utf-8").read()
         # 使用 thulac 分词
         # thu = thulac.thulac(seg_only=True)
         # thu.cut(post, text=True)
 
         # 使用 jieba 分词
         file_path = os.path.join("data", "user_dict.txt")
-        jieba.load_userdict(file_path)
+        jieba.load_userdict(file_path)  # 导入用户词典，词典中的词不会被分割
         r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+。：；、【】等的和1234567890及中并，有对能与各可 \n（）'
-        seg_list = jieba.cut(post, cut_all=False)
+        seg_list = jieba.cut(post, cut_all=False)  # 进行分词
         counter = dict()
         for seg in seg_list:
             counter[seg] = counter.get(seg, 1) + 1
-        for d in r:
+        for d in r:  # 循环删除r中定义的无用字符
             if d in counter:
                 del counter[d]
-        counter_sort = sorted(
-            counter.items(), key=lambda value: value[1], reverse=True)
-        #pprint(counter_sort)
+        counter_sort = sorted(counter.items(), key=lambda value: value[1], reverse=True)
         with open(os.path.join("data", "post_pre_desc_counter.csv"),"w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
             f_csv.writerows(counter_sort)
@@ -352,8 +346,7 @@ class JobSpider:
         """
         lst = [c.get('post') for c in self.company]
         counter = Counter(lst)
-        counter_most = counter.most_common()
-        #pprint(counter_most)
+        counter_most = counter.most_common()  # 同名职位合并计数
         with open(os.path.join("data", "post_pre_counter.csv"),
                   "w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
@@ -364,8 +357,8 @@ class JobSpider:
         """
         lst = []
         for c in self.company:
-            lst.append((c.get('salary'), c.get('post'), c.get('locate')))
-        #pprint(lst)
+            if c.get('locate') != "异地招聘":  # 去除异地招聘
+                lst.append((c.get('salary'), c.get('post'), c.get('locate')))
 
         file_path = os.path.join("data", "post_salary_locate.csv")
         with open(file_path, "w+", encoding="utf-8",newline='') as f:
@@ -410,7 +403,6 @@ class JobSpider:
                 (round(
                     ((float(s[1]) - float(s[0])) * 0.4 + float(s[0])) / 10, 1),
                  t[1], t[2]))
-        #pprint(calc)
         with open(os.path.join("data", "post_salary.csv"),
                   "w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
@@ -420,8 +412,7 @@ class JobSpider:
     def post_salary_localcounter():
         """ 地点统计
         """
-        with open(os.path.join("data", "post_salary_locate.csv"),
-                  "r", encoding="utf-8") as f:
+        with open(os.path.join("data", "post_salary_locate.csv"), "r", encoding="utf-8") as f:
             f_csv = csv.reader(f)
             lst=[]
             for row in f_csv:
@@ -439,10 +430,9 @@ class JobSpider:
         geo = Geo("", "", title_color="#fff",
                   title_pos="center", width=800,
                   height=500, background_color='#404a59')
-        geo.add("", x, y, is_visualmap=True, visual_range=[0, max(y)],symbol_size=15,
-        visual_text_color='#fff')
-        geo.render('dd.html')
-        make_a_snapshot('dd.html', os.path.join("images", "locate.png"))
+        geo.add("", x, y, is_visualmap=True, visual_range=[0, max(y)],symbol_size=15, visual_text_color='#fff')
+        geo.render('dd.html')  # 生成html
+        make_a_snapshot('dd.html', os.path.join("images", "locate.png"))  # 利用快照生成png图片
         with open(os.path.join("data", "post_local.csv"),
                   "w+", encoding="utf-8",newline='') as f:
             f_csv = csv.writer(f)
@@ -466,7 +456,7 @@ class JobSpider:
             y[i] = c[1]
             i=i+1
         func = interpolate.interp1d(x, y, kind='cubic')
-        x=np.arange(x[0]+50, x[-1]-50, 10)
+        x = np.arange(x[0]+50, x[-1]-50, 10)  # 差值平均化，使线条平滑
         y = func(x)
         i=0;
         for xz in y :
@@ -487,8 +477,8 @@ class JobSpider:
             f_csv.writerows(counter)
 
     @staticmethod
-    def world_cloud():
-        """ 生成词云
+    def world_cloud1():
+        """ 生成关键词词云
         """
         counter = {}
         with open(os.path.join("data", "post_pre_desc_counter.csv"),
@@ -496,11 +486,9 @@ class JobSpider:
             f_csv = csv.reader(f)
             for row in f_csv:
                 counter[row[0]] = counter.get(row[0], int(row[1]))
-            #pprint(counter)
         x=[0]*101
         y=[0]*101
         i=0
-        #tuple(counter)
         for c in counter:
             x[i] = c
             y[i] = counter[c]
@@ -511,7 +499,34 @@ class JobSpider:
         wordcloud.add("", x, y, word_size_range=[30, 100],
                       shape='diamond')
         wordcloud.render('wc.html')
-        make_a_snapshot('wc.html', os.path.join("images", "wc.png"))
+        make_a_snapshot('wc.html', os.path.join("images", "wc1.png"))
+
+    @staticmethod
+    def world_cloud2():
+        """ 生成职位词云
+        """
+        counter = {}
+        with open(os.path.join("data", "post_pre_counter.csv"),
+                  "r", encoding="utf-8") as f:
+            f_csv = csv.reader(f)
+            for row in f_csv:
+                counter[row[0]] = counter.get(row[0], int(row[1]))
+            # pprint(counter)
+        x = [0] * 101
+        y = [0] * 101
+        i = 0
+        # tuple(counter)
+        for c in counter:
+            x[i] = c
+            y[i] = counter[c]
+            i = i + 1
+            if i > 100:
+                break
+        wordcloud = WordCloud(width=1300, height=620)
+        wordcloud.add("", x, y, word_size_range=[30, 100],
+                      shape='diamond')
+        wordcloud.render('wc.html')
+        make_a_snapshot('wc.html', os.path.join("images", "wc2.png"))
 
     @staticmethod
     def insert_into_db():
@@ -546,49 +561,51 @@ class JobSpider:
         ui.label_3.setText("正在搜索职位......请稍等！")
         app.processEvents()
         spider.job_spider()
-        ui.label_3.setText("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！（约5分钟）")
-        app.processEvents()
-        print("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！")
-        # 按需启动
-        spider.post_require()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！")
-        app.processEvents()
-        print("职位详情爬取完毕！")
-        spider.post_counter()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！")
-        app.processEvents()
-        print("职位预统计完毕！")
-        spider.post_salary_locate()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！")
-        app.processEvents()
-        print("职位分职位薪资地点统计完毕！")
-        spider.post_salary()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！")
-        app.processEvents()
-        print("薪酬统一处理完毕！")
-        spider.post_salary_counter()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！")
-        app.processEvents()
-        print("薪酬统计展示完毕！")
-        spider.post_salary_localcounter()
-        ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！")
-        app.processEvents()
-        print("工作地点统计完毕！")
-        spider.post_desc_counter()
-        ui.label_3.setText(
-            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！")
-        app.processEvents()
-        print("词云数据预处理完毕！")
-        spider.world_cloud()
-        ui.label_3.setText(
-            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！")
-        app.processEvents()
-        print("词云生成完毕！")
-        spider.insert_into_db()
-        print("数据导入数据库完毕！")
-        ui.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
-        ui.label_3.setText(
-            "职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！\n数据导入数据库完毕！\n\n报告生成完毕......请查阅！")
+        if len(spider.company) == 0:
+            ui.label_3.setText("网络故障或无任何职位！")
+            app.processEvents()
+        else:
+            ui.label_3.setText("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！（约5分钟）")
+            app.processEvents()
+            print("职位基本信息搜索完毕！\n正在搜索详细信息......请稍等！")
+            # 按需启动
+            spider.post_require()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！")
+            app.processEvents()
+            print("职位详情爬取完毕！")
+            spider.post_counter()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！")
+            app.processEvents()
+            print("职位预统计完毕！")
+            spider.post_salary_locate()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！")
+            app.processEvents()
+            print("职位分职位薪资地点统计完毕！")
+            spider.post_salary()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！")
+            app.processEvents()
+            print("薪酬统一处理完毕！")
+            spider.post_salary_counter()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！")
+            app.processEvents()
+            print("薪酬统计展示完毕！")
+            spider.post_salary_localcounter()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！")
+            app.processEvents()
+            print("工作地点统计完毕！")
+            spider.post_desc_counter()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！")
+            app.processEvents()
+            print("词云数据预处理完毕！")
+            spider.world_cloud1()
+            spider.world_cloud2()
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！")
+            app.processEvents()
+            print("词云生成完毕！")
+            spider.insert_into_db()
+            print("数据导入数据库完毕！")
+            ui.pushButton_2.setGeometry(QtCore.QRect(270, 440, 110, 40))
+            ui.label_3.setText("职位基本信息搜索完毕！\n职位详情爬取完毕！\n职位预统计完毕！\n职位分职位薪资地点统计完毕！\n薪酬统一处理完毕！\n薪酬统计展示完毕！\n工作地点统计完毕！\n词云数据预处理完毕！\n词云生成完毕！\n数据导入数据库完毕！\n\n报告生成完毕......请查阅！")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
